@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APEX — Just Move.</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --black: #0a0a0a;
+    --white: #ffffff;
+    --gray-light: #f5f5f5;
+    --gray-mid: #e0e0e0;
+    --gray-text: #767676;
+    --accent: #e8ff00;
+    --red: #ff2e2e;
+    --font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font);
+    background: var(--white);
+    color: var(--black);
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px; height: 60px;
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid #eee;
+  }
+
+  .nav-logo {
+    font-size: 22px; font-weight: 900; letter-spacing: -1px;
+    text-transform: uppercase; color: var(--black);
+  }
+
+  .nav-logo span { color: var(--red); }
+
+  .nav-links {
+    display: flex; gap: 36px; list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 13px; font-weight: 500; letter-spacing: 0.5px;
+    text-decoration: none; color: var(--black);
+    text-transform: uppercase; transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--red); }
+
+  .nav-actions { display: flex; gap: 20px; align-items: center; }
+
+  .nav-actions a {
+    font-size: 13px; font-weight: 500; text-decoration: none;
+    color: var(--black); letter-spacing: 0.3px;
+  }
+
+  .nav-cart {
+    background: var(--black); color: var(--white) !important;
+    padding: 8px 20px; border-radius: 2px; font-size: 13px !important;
+    font-weight: 600 !important; letter-spacing: 0.5px !important;
+    transition: background 0.2s;
+  }
+
+  .nav-cart:hover { background: var(--red) !important; }
+
+  /* HERO */
+  .hero {
+    margin-top: 60px;
+    height: calc(100vh - 60px);
+    background: var(--black);
+    display: grid; grid-template-columns: 1fr 1fr;
+    position: relative; overflow: hidden;
+  }
+
+  .hero-text {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 80px 64px; z-index: 2;
+  }
+
+  .hero-eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 4px;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 24px;
+  }
+
+  .hero-title {
+    font-size: clamp(56px, 7vw, 100px);
+    font-weight: 900; line-height: 0.9;
+    letter-spacing: -4px; text-transform: uppercase;
+    color: var(--white); margin-bottom: 32px;
+  }
+
+  .hero-title em { font-style: normal; color: var(--accent); }
+
+  .hero-body {
+    font-size: 16px; line-height: 1.6; color: #999;
+    max-width: 380px; margin-bottom: 48px;
+  }
+
+  .hero-ctas { display: flex; gap: 16px; }
+
+  .btn-primary {
+    background: var(--accent); color: var(--black);
+    padding: 16px 36px; font-size: 13px; font-weight: 800;
+    letter-spacing: 1px; text-transform: uppercase;
+    border: none; cursor: pointer; transition: transform 0.15s;
+    text-decoration: none; display: inline-block;
+  }
+
+  .btn-primary:hover { transform: scale(1.03); }
+
+  .btn-ghost {
+    background: transparent; color: var(--white);
+    padding: 16px 36px; font-size: 13px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase;
+    border: 1.5px solid #444; cursor: pointer; transition: border-color 0.2s, color 0.2s;
+    text-decoration: none; display: inline-block;
+  }
+
+  .btn-ghost:hover { border-color: var(--white); }
+
+  .hero-image {
+    position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .hero-image::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, #1a1a1a 0%, #000 100%);
+  }
+
+  .hero-shoe-wrapper {
+    position: relative; z-index: 1;
+    transform: rotate(-20deg) translateX(-20px);
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: rotate(-20deg) translateX(-20px) translateY(0); }
+    50% { transform: rotate(-20deg) translateX(-20px) translateY(-18px); }
+  }
+
+  .hero-shoe {
+    width: 580px; height: auto; display: block;
+    filter: drop-shadow(0 40px 60px rgba(232,255,0,0.15));
+  }
+
+  .hero-counter {
+    position: absolute; bottom: 48px; left: 64px;
+    display: flex; gap: 48px;
+  }
+
+  .counter-item { display: flex; flex-direction: column; }
+
+  .counter-num {
+    font-size: 36px; font-weight: 900; color: var(--white);
+    letter-spacing: -2px;
+  }
+
+  .counter-label {
+    font-size: 11px; color: #555; letter-spacing: 2px; text-transform: uppercase;
+  }
+
+  .hero-badge {
+    position: absolute; top: 48px; right: 48px;
+    width: 90px; height: 90px; border-radius: 50%;
+    background: var(--accent); display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 800; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--black); text-align: center;
+    animation: spin 20s linear infinite;
+  }
+
+  @keyframes spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+
+  /* TICKER */
+  .ticker {
+    background: var(--black); color: var(--accent);
+    padding: 14px 0; overflow: hidden;
+    border-top: 1px solid #1a1a1a;
+  }
+
+  .ticker-inner {
+    display: flex; gap: 64px; width: max-content;
+    animation: ticker 25s linear infinite;
+    font-size: 12px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* COLLECTIONS GRID */
+  .section { padding: 100px 48px; }
+
+  .section-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 56px;
+  }
+
+  .section-title {
+    font-size: clamp(32px, 4vw, 56px); font-weight: 900;
+    letter-spacing: -2px; text-transform: uppercase; line-height: 1;
+  }
+
+  .section-sub {
+    font-size: 13px; color: var(--gray-text); letter-spacing: 2px;
+    text-transform: uppercase; font-weight: 600; margin-bottom: 12px;
+  }
+
+  .see-all {
+    font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
+    text-transform: uppercase; color: var(--black);
+    text-decoration: underline; text-underline-offset: 4px;
+    cursor: pointer; white-space: nowrap;
+  }
+
+  .collections-grid {
+    display: grid; grid-template-columns: 2fr 1fr 1fr;
+    grid-template-rows: 520px 260px;
+    gap: 12px;
+  }
+
+  .col-card {
+    position: relative; overflow: hidden;
+    background: var(--gray-light); cursor: pointer;
+  }
+
+  .col-card:first-child { grid-row: 1 / 3; }
+
+  .col-card-bg {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .col-card:hover .col-card-bg { transform: scale(1.05); }
+
+  .col-card-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
+  }
+
+  .col-card-info {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 32px; color: var(--white);
+  }
+
+  .col-card-cat {
+    font-size: 10px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 8px;
+  }
+
+  .col-card-title {
+    font-size: clamp(22px, 2.5vw, 38px); font-weight: 900;
+    letter-spacing: -1px; text-transform: uppercase; line-height: 1;
+    margin-bottom: 16px;
+  }
+
+  .col-card-btn {
+    display: inline-block; background: var(--white); color: var(--black);
+    padding: 10px 24px; font-size: 12px; font-weight: 800;
+    letter-spacing: 1px; text-transform: uppercase;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .col-card:hover .col-card-btn {
+    background: var(--accent);
+  }
+
+  /* PRODUCT CARDS */
+  .products-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+  }
+
+  .product-card {
+    background: var(--gray-light); cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .product-card:hover { transform: translateY(-4px); }
+
+  .product-img-wrap {
+    aspect-ratio: 1; overflow: hidden; position: relative;
+    background: #ececec;
+  }
+
+  .product-img-wrap::after {
+    content: attr(data-label);
+    position: absolute; top: 16px; left: 16px;
+    background: var(--red); color: var(--white);
+    font-size: 10px; font-weight: 800; letter-spacing: 1px;
+    text-transform: uppercase; padding: 4px 10px;
+    display: var(--label-display, none);
+  }
+
+  .product-img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform 0.5s;
+  }
+
+  .product-card:hover .product-img { transform: scale(1.08); }
+
+  .product-info { padding: 20px; }
+
+  .product-name {
+    font-size: 15px; font-weight: 700; letter-spacing: -0.3px;
+    margin-bottom: 4px;
+  }
+
+  .product-category {
+    font-size: 12px; color: var(--gray-text);
+    letter-spacing: 0.5px; margin-bottom: 12px;
+  }
+
+  .product-footer {
+    display: flex; justify-content: space-between; align-items: center;
+  }
+
+  .product-price { font-size: 15px; font-weight: 800; }
+
+  .product-colors { display: flex; gap: 6px; }
+
+  .color-dot {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 1.5px solid #ddd; cursor: pointer;
+  }
+
+  /* BANNER */
+  .banner {
+    background: var(--black);
+    display: grid; grid-template-columns: 1fr 1fr;
+    min-height: 500px; overflow: hidden;
+  }
+
+  .banner-text {
+    padding: 80px 64px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+
+  .banner-title {
+    font-size: clamp(42px, 5vw, 72px); font-weight: 900;
+    line-height: 0.95; letter-spacing: -3px;
+    text-transform: uppercase; color: var(--white);
+    margin-bottom: 24px;
+  }
+
+  .banner-title span { color: var(--red); }
+
+  .banner-body {
+    font-size: 16px; color: #888; line-height: 1.7;
+    max-width: 380px; margin-bottom: 40px;
+  }
+
+  .banner-image {
+    position: relative; overflow: hidden;
+    background: #111;
+  }
+
+  .banner-img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    opacity: 0.75;
+  }
+
+  /* CATEGORY PILLS */
+  .categories { padding: 60px 48px; background: var(--gray-light); }
+
+  .cats-row {
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+    margin-top: 36px;
+  }
+
+  .cat-pill {
+    padding: 14px 28px; border: 1.5px solid var(--black);
+    font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
+    text-transform: uppercase; cursor: pointer;
+    transition: all 0.2s; background: transparent;
+  }
+
+  .cat-pill:hover, .cat-pill.active {
+    background: var(--black); color: var(--white);
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--black); color: var(--white);
+    padding: 80px 48px 40px;
+  }
+
+  .footer-grid {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    gap: 48px; margin-bottom: 64px;
+  }
+
+  .footer-brand-name {
+    font-size: 32px; font-weight: 900; letter-spacing: -2px;
+    text-transform: uppercase; margin-bottom: 20px;
+  }
+
+  .footer-brand-name span { color: var(--red); }
+
+  .footer-tagline {
+    font-size: 14px; color: #666; line-height: 1.7; max-width: 260px;
+  }
+
+  .footer-col-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: #555; margin-bottom: 24px;
+  }
+
+  .footer-links { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+
+  .footer-links a {
+    font-size: 13px; color: #999; text-decoration: none;
+    transition: color 0.2s; letter-spacing: 0.3px;
+  }
+
+  .footer-links a:hover { color: var(--white); }
+
+  .footer-bottom {
+    border-top: 1px solid #1a1a1a; padding-top: 32px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+
+  .footer-copy { font-size: 12px; color: #444; }
+
+  .footer-socials { display: flex; gap: 24px; }
+
+  .footer-socials a {
+    font-size: 12px; color: #444; text-decoration: none;
+    letter-spacing: 1px; font-weight: 600; text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .footer-socials a:hover { color: var(--white); }
+
+  /* SVG shoe placeholder */
+  .shoe-svg { width: 580px; height: 320px; }
+
+  /* Colored placeholders for product images */
+  .img-placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  @media (max-width: 900px) {
+    nav { padding: 0 24px; }
+    .nav-links { display: none; }
+    .hero { grid-template-columns: 1fr; }
+    .hero-image { display: none; }
+    .hero-text { padding: 48px 24px; }
+    .section { padding: 64px 24px; }
+    .collections-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+    .col-card:first-child { grid-row: auto; }
+    .products-grid { grid-template-columns: repeat(2, 1fr); }
+    .banner { grid-template-columns: 1fr; }
+    .banner-image { display: none; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">APE<span>X</span></div>
+  <ul class="nav-links">
+    <li><a href="#">Men</a></li>
+    <li><a href="#">Women</a></li>
+    <li><a href="#">Kids</a></li>
+    <li><a href="#">Running</a></li>
+    <li><a href="#">Training</a></li>
+    <li><a href="#">Sale</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="#">Search</a>
+    <a href="#">Sign In</a>
+    <a href="#" class="nav-cart">Cart (0)</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-text">
+    <p class="hero-eyebrow">New Season Drop</p>
+    <h1 class="hero-title">Don't<br>Stop.<br><em>Ever.</em></h1>
+    <p class="hero-body">Performance engineered for athletes who refuse to settle. From the track to the streets — gear that moves when you do.</p>
+    <div class="hero-ctas">
+      <a href="#products" class="btn-primary">Shop Now</a>
+      <a href="#collections" class="btn-ghost">Explore</a>
+    </div>
+  </div>
+
+  <div class="hero-image">
+    <!-- SVG Shoe Illustration -->
+    <div class="hero-shoe-wrapper">
+      <svg class="hero-shoe" viewBox="0 0 600 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Sole -->
+        <ellipse cx="290" cy="290" rx="270" ry="28" fill="#1a1a1a"/>
+        <!-- Midsole -->
+        <path d="M60 270 Q70 240 120 235 L480 230 Q540 232 545 260 Q548 278 530 285 L80 290 Q55 288 60 270Z" fill="#2a2a2a"/>
+        <path d="M70 260 Q80 248 130 244 L470 240 Q520 242 525 258 Q527 268 515 272 L85 278 Q65 276 70 260Z" fill="#e8ff00" opacity="0.9"/>
+        <!-- Upper body -->
+        <path d="M100 235 Q95 200 110 170 Q130 140 180 125 L320 115 Q400 110 450 130 Q490 148 510 180 Q525 205 520 230 L100 235Z" fill="#f0f0f0"/>
+        <!-- Toe box -->
+        <path d="M100 235 Q85 220 88 195 Q92 168 110 155 Q132 140 165 135 L220 128 Q160 145 145 170 Q132 192 135 220 L100 235Z" fill="#e0e0e0"/>
+        <!-- Side swoosh / design element -->
+        <path d="M160 200 Q210 160 320 158 Q420 156 490 175" stroke="#0a0a0a" stroke-width="6" stroke-linecap="round" fill="none"/>
+        <path d="M160 200 Q210 160 320 158 Q420 156 490 175" stroke="#e8ff00" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.7"/>
+        <!-- Heel counter -->
+        <path d="M470 135 Q510 140 520 165 Q528 185 520 210 L490 220 Q505 195 500 172 Q494 152 470 145 Z" fill="#d0d0d0"/>
+        <!-- Tongue -->
+        <path d="M220 128 L280 120 L320 115 L320 168 L280 172 L220 175 Z" fill="#e8ff00" opacity="0.8"/>
+        <!-- Laces -->
+        <line x1="235" y1="135" x2="305" y2="128" stroke="#aaa" stroke-width="2"/>
+        <line x1="238" y1="148" x2="308" y2="141" stroke="#aaa" stroke-width="2"/>
+        <line x1="240" y1="161" x2="310" y2="155" stroke="#aaa" stroke-width="2"/>
+        <!-- Logo text on heel -->
+        <text x="478" y="190" font-size="10" font-weight="900" fill="#0a0a0a" transform="rotate(-90,478,190)" letter-spacing="2" text-anchor="middle">APEX</text>
+      </svg>
+    </div>
+    <div class="hero-badge">New<br>Drop<br>24</div>
+  </div>
+
+  <div class="hero-counter">
+    <div class="counter-item">
+      <span class="counter-num">142+</span>
+      <span class="counter-label">Styles</span>
+    </div>
+    <div class="counter-item">
+      <span class="counter-num">4M+</span>
+      <span class="counter-label">Athletes</span>
+    </div>
+    <div class="counter-item">
+      <span class="counter-num">98%</span>
+      <span class="counter-label">Satisfied</span>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span>Free Shipping Over $100</span><span>•</span>
+    <span>New Season Now Live</span><span>•</span>
+    <span>Members Get 20% Off</span><span>•</span>
+    <span>Limited Edition Drops Weekly</span><span>•</span>
+    <span>Free Returns Always</span><span>•</span>
+    <span>Free Shipping Over $100</span><span>•</span>
+    <span>New Season Now Live</span><span>•</span>
+    <span>Members Get 20% Off</span><span>•</span>
+    <span>Limited Edition Drops Weekly</span><span>•</span>
+    <span>Free Returns Always</span><span>•</span>
+  </div>
+</div>
+
+<!-- COLLECTIONS -->
+<section class="section" id="collections">
+  <div class="section-header">
+    <div>
+      <p class="section-sub">Shop By</p>
+      <h2 class="section-title">Collections</h2>
+    </div>
+    <span class="see-all">View All</span>
+  </div>
+
+  <div class="collections-grid">
+    <!-- Main card -->
+    <div class="col-card">
+      <svg style="width:100%;height:100%" viewBox="0 0 600 780" xmlns="http://www.w3.org/2000/svg">
+        <rect width="600" height="780" fill="#0a0a0a"/>
+        <!-- Abstract runner shape -->
+        <circle cx="300" cy="200" r="60" fill="#1a1a1a"/>
+        <path d="M260 230 Q230 310 240 380 Q250 430 300 450 Q350 430 360 380 Q370 310 340 230" fill="#1f1f1f"/>
+        <path d="M240 380 Q200 420 180 480 L220 495 Q235 450 260 430" fill="#1f1f1f"/>
+        <path d="M360 380 Q400 420 420 480 L380 495 Q365 450 340 430" fill="#1f1f1f"/>
+        <!-- Dynamic lines -->
+        <line x1="100" y1="600" x2="500" y2="200" stroke="#e8ff00" stroke-width="1" opacity="0.3"/>
+        <line x1="50" y1="650" x2="450" y2="250" stroke="#e8ff00" stroke-width="0.5" opacity="0.15"/>
+        <!-- Ground swoosh -->
+        <path d="M50 680 Q200 620 400 660 Q500 680 560 640" stroke="#e8ff00" stroke-width="3" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div class="col-card-overlay"></div>
+      <div class="col-card-info">
+        <p class="col-card-cat">Featured</p>
+        <h3 class="col-card-title">Running<br>2024</h3>
+        <span class="col-card-btn">Shop Running</span>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="col-card">
+      <svg style="width:100%;height:100%" viewBox="0 0 300 520" xmlns="http://www.w3.org/2000/svg">
+        <rect width="300" height="520" fill="#ff2e2e"/>
+        <circle cx="150" cy="180" r="120" fill="#cc2222" opacity="0.5"/>
+        <text x="150" y="200" font-size="80" font-weight="900" fill="white" text-anchor="middle" opacity="0.15">T</text>
+        <rect x="60" y="280" width="180" height="4" fill="white" opacity="0.3"/>
+        <rect x="80" y="295" width="140" height="2" fill="white" opacity="0.2"/>
+      </svg>
+      <div class="col-card-overlay"></div>
+      <div class="col-card-info">
+        <p class="col-card-cat">New</p>
+        <h3 class="col-card-title">Training</h3>
+        <span class="col-card-btn">Shop Now</span>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="col-card">
+      <svg style="width:100%;height:100%" viewBox="0 0 300 520" xmlns="http://www.w3.org/2000/svg">
+        <rect width="300" height="520" fill="#1a1a3a"/>
+        <circle cx="150" cy="200" r="130" fill="#22226a" opacity="0.7"/>
+        <polygon points="150,60 230,200 70,200" fill="white" opacity="0.07"/>
+        <line x1="0" y1="300" x2="300" y2="180" stroke="#e8ff00" stroke-width="1" opacity="0.4"/>
+      </svg>
+      <div class="col-card-overlay"></div>
+      <div class="col-card-info">
+        <p class="col-card-cat">Lifestyle</p>
+        <h3 class="col-card-title">Street</h3>
+        <span class="col-card-btn">Explore</span>
+      </div>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="col-card">
+      <svg style="width:100%;height:100%" viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg">
+        <rect width="300" height="260" fill="#2a2a2a"/>
+        <rect x="0" y="0" width="150" height="260" fill="#222"/>
+        <circle cx="150" cy="130" r="80" fill="#333" opacity="0.8"/>
+        <text x="150" y="145" font-size="48" font-weight="900" fill="#e8ff00" text-anchor="middle" opacity="0.6">W</text>
+      </svg>
+      <div class="col-card-overlay"></div>
+      <div class="col-card-info">
+        <p class="col-card-cat">Women's</p>
+        <h3 class="col-card-title">Power</h3>
+        <span class="col-card-btn">Shop</span>
+      </div>
+    </div>
+
+    <!-- Card 5 -->
+    <div class="col-card">
+      <svg style="width:100%;height:100%" viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg">
+        <rect width="300" height="260" fill="#0f3020"/>
+        <circle cx="80" cy="100" r="70" fill="#1a4a30" opacity="0.8"/>
+        <circle cx="220" cy="160" r="55" fill="#1a4a30" opacity="0.5"/>
+        <path d="M0 180 Q100 120 200 160 Q260 180 300 150" stroke="#4aff8a" stroke-width="2" fill="none" opacity="0.5"/>
+      </svg>
+      <div class="col-card-overlay"></div>
+      <div class="col-card-info">
+        <p class="col-card-cat">Eco</p>
+        <h3 class="col-card-title">Sustain</h3>
+        <span class="col-card-btn">Shop</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORY PILLS -->
+<section class="categories">
+  <div style="text-align:center">
+    <p class="section-sub" style="text-align:center">Browse By</p>
+    <h2 class="section-title" style="font-size:36px">Sport</h2>
+  </div>
+  <div class="cats-row">
+    <button class="cat-pill active">All</button>
+    <button class="cat-pill">Running</button>
+    <button class="cat-pill">Basketball</button>
+    <button class="cat-pill">Football</button>
+    <button class="cat-pill">Tennis</button>
+    <button class="cat-pill">Training</button>
+    <button class="cat-pill">Yoga</button>
+    <button class="cat-pill">Swimming</button>
+    <button class="cat-pill">Cycling</button>
+    <button class="cat-pill">Hiking</button>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section class="section" id="products" style="background:#fff">
+  <div class="section-header">
+    <div>
+      <p class="section-sub">This Week</p>
+      <h2 class="section-title">Trending</h2>
+    </div>
+    <span class="see-all">All Products</span>
+  </div>
+
+  <div class="products-grid">
+
+    <!-- Product 1 -->
+    <div class="product-card">
+      <div class="product-img-wrap" style="--label-display:block" data-label="NEW">
+        <svg style="width:100%;height:100%" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+          <rect width="300" height="300" fill="#f0f0f0"/>
+          <!-- Shoe SVG -->
+          <path d="M40 200 Q42 170 60 155 Q85 138 120 132 L200 128 Q240 126 265 145 Q285 162 285 188 L40 200Z" fill="#e8ff00"/>
+          <path d="M40 200 Q38 185 42 168 Q48 150 60 145 Q80 136 110 133 L150 130 Q120 140 112 160 Q105 178 108 198Z" fill="#d4e800"/>
+          <ellipse cx="162" cy="210" rx="135" ry="14" fill="#ccc"/>
+          <path d="M52 195 Q54 173 70 160 Q95 145 130 140 L195 136 Q225 134 248 148 Q262 160 262 185" fill="none" stroke="#0a0a0a" stroke-width="3" stroke-linecap="round"/>
+          <line x1="130" y1="140" x2="120" y2="132" stroke="#666" stroke-width="1.5"/>
+          <line x1="150" y1="137" x2="140" y2="129" stroke="#666" stroke-width="1.5"/>
+          <line x1="170" y1="135" x2="160" y2="127" stroke="#666" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <div class="product-info">
+        <p class="product-name">Apex Racer Pro</p>
+        <p class="product-category">Running Shoes</p>
+        <div class="product-footer">
+          <span class="product-price">$145</span>
+          <div class="product-colors">
+            <div class="color-dot" style="background:#e8ff00"></div>
+            <div class="color-dot" style="background:#0a0a0a"></div>
+            <div class="color-dot" style="background:#ff2e2e"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product 2 -->
+    <div class="product-card">
+      <div class="product-img-wrap">
+        <svg style="width:100%;height:100%" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+          <rect width="300" height="300" fill="#1a1a1a"/>
+          <!-- Hoodie silhouette -->
+          <path d="M95 260 L80 130 Q78 110 100 100 L120 90 Q150 80 180 90 L200 100 Q222 110 220 130 L205 260Z" fill="#2a2a2a"/>
+          <path d="M120 90 Q135 70 150 68 Q165 70 180 90 Q165 82 150 80 Q135 82 120 90Z" fill="#222"/>
+          <path d="M80 130 Q60 135 55 150 L65 220 Q78 210 80 160Z" fill="#252525"/>
+          <path d="M220 130 Q240 135 245 150 L235 220 Q222 210 220 160Z" fill="#252525"/>
+          <!-- Logo area -->
+          <circle cx="150" cy="170" r="25" fill="#e8ff00" opacity="0.15"/>
+          <text x="150" y="177" font-size="14" font-weight="900" fill="#e8ff00" text-anchor="middle">APEX</text>
+        </svg>
+      </div>
+      <div class="product-info">
+        <p class="product-name">Core Fleece Hoodie</p>
+        <p class="product-category">Men's Apparel</p>
+        <div class="product-footer">
+          <span class="product-price">$89</span>
+          <div class="product-colors">
+            <div class="color-dot" style="background:#1a1a1a"></div>
+            <div class="color-dot" style="background:#4a4a6a"></div>
+            <div class="color-dot" style="background:#6a2a2a"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product 3 -->
+    <div class="product-card">
+      <div class="product-img-wrap" style="--label-display:block" data-label="SALE">
+        <svg style="width:100%;height:100%" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+          <rect width="300" height="300" fill="#f5eeff"/>
+          <!-- Sneaker in purple -->
+          <path d="M40 200 Q42 170 60 155 Q85 138 120 132 L200 128 Q240 126 265 145 Q285 162 285 188 L40 200Z" fill="#9b6fff"/>
+          <path d="M40 200 Q38 185 42 168 Q48 150 60 145 Q80 136 110 133 L150 130 Q120 140 112 160 Q105 178 108 198Z" fill="#7a4ecc"/>
+          <ellipse cx="162" cy="210" rx="135" ry="14" fill="#d0b0ff"/>
+          <path d="M52 195 Q54 173 70 160 Q95 145 130 140 L195 136 Q225 134 248 148 Q262 160 262 185" fill="none" stroke="#6a30cc" stroke-width="3" stroke-linecap="round"/>
+          <rect x="108" y="120" width="80" height="15" rx="3" fill="#c4a0ff"/>
+        </svg>
+      </div>
+      <div class="product-info">
+        <p class="product-name">Vapor Air Low</p>
+        <p class="product-category">Lifestyle Sneakers</p>
+        <div class="product-footer">
+          <span class="product-price"><span style="color:#999;text-decoration:line-through;font-weight:400;font-size:13px;margin-right:6px">$120</span>$79</span>
+          <div class="product-colors">
+            <div class="color-dot" style="background:#9b6fff"></div>
+            <div class="color-dot" style="background:#fff;border:1.5px solid #ccc"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product 4 -->
+    <div class="product-card">
+      <div class="product-img-wrap">
+        <svg style="width:100%;height:100%" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+          <rect width="300" height="300" fill="#fff5f0"/>
+          <!-- Shorts/shorts silhouette -->
+          <path d="M90 80 L85 220 L148 220 L155 140 L162 220 L215 220 L210 80Z" fill="#ff6b35"/>
+          <path d="M90 80 L210 80 L210 100 L90 100Z" fill="#e05520"/>
+          <line x1="155" y1="100" x2="155" y2="220" stroke="#e05520" stroke-width="3"/>
+          <!-- Stripe -->
+          <path d="M90 130 L88 180 L100 182 L102 130Z" fill="white" opacity="0.5"/>
+          <path d="M210 130 L212 180 L200 182 L198 130Z" fill="white" opacity="0.5"/>
+          <text x="155" y="165" font-size="11" font-weight="900" fill="white" text-anchor="middle" letter-spacing="2">APEX</text>
+        </svg>
+      </div>
+      <div class="product-info">
+        <p class="product-name">Flex Stride Shorts</p>
+        <p class="product-category">Men's Training</p>
+        <div class="product-footer">
+          <span class="product-price">$55</span>
+          <div class="product-colors">
+            <div class="color-dot" style="background:#ff6b35"></div>
+            <div class="color-dot" style="background:#1a1a1a"></div>
+            <div class="color-dot" style="background:#1a4a30"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- BANNER -->
+<div class="banner">
+  <div class="banner-text">
+    <h2 class="banner-title">Built for<br><span>Champions.</span><br>Worn by<br>Everyone.</h2>
+    <p class="banner-body">Join 4 million athletes worldwide who trust Apex for performance gear that goes as hard as they do.</p>
+    <a href="#" class="btn-primary" style="align-self:flex-start">Join the Movement</a>
+  </div>
+  <div class="banner-image">
+    <svg style="width:100%;height:100%" viewBox="0 0 600 500" xmlns="http://www.w3.org/2000/svg">
+      <rect width="600" height="500" fill="#111"/>
+      <!-- Abstract motion lines -->
+      <line x1="0" y1="400" x2="600" y2="50" stroke="#e8ff00" stroke-width="1" opacity="0.2"/>
+      <line x1="0" y1="450" x2="600" y2="100" stroke="#e8ff00" stroke-width="0.5" opacity="0.1"/>
+      <line x1="0" y1="350" x2="600" y2="0" stroke="#e8ff00" stroke-width="0.5" opacity="0.1"/>
+      <!-- Circle accent -->
+      <circle cx="400" cy="250" r="200" fill="none" stroke="#e8ff00" stroke-width="1" opacity="0.1"/>
+      <circle cx="400" cy="250" r="150" fill="none" stroke="#e8ff00" stroke-width="0.5" opacity="0.08"/>
+      <!-- Large APEX text -->
+      <text x="300" y="290" font-size="120" font-weight="900" fill="white" text-anchor="middle" opacity="0.04" letter-spacing="-5">APEX</text>
+      <!-- Shoe silhouette big -->
+      <path d="M100 340 Q102 290 130 268 Q168 248 230 242 L380 235 Q440 232 470 255 Q498 275 500 315 L100 340Z" fill="#2a2a2a"/>
+      <path d="M100 340 Q96 318 102 295 Q112 270 130 260 Q165 245 210 240 L260 238 Q218 252 210 278 Q202 302 207 335Z" fill="#1e1e1e"/>
+      <ellipse cx="295" cy="353" rx="220" ry="18" fill="#0a0a0a"/>
+      <path d="M112 330 Q116 295 140 278 Q175 258 225 250 L370 244 Q415 242 445 260 Q465 276 465 308" fill="none" stroke="#e8ff00" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+    </svg>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand-name">APE<span>X</span></div>
+      <p class="footer-tagline">Performance gear for athletes who refuse to stop. Engineered for every sport, every body, every goal.</p>
+    </div>
+    <div>
+      <p class="footer-col-title">Men</p>
+      <ul class="footer-links">
+        <li><a href="#">Shoes</a></li>
+        <li><a href="#">Tops</a></li>
+        <li><a href="#">Shorts</a></li>
+        <li><a href="#">Jackets</a></li>
+        <li><a href="#">Accessories</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="footer-col-title">Women</p>
+      <ul class="footer-links">
+        <li><a href="#">Shoes</a></li>
+        <li><a href="#">Sports Bras</a></li>
+        <li><a href="#">Leggings</a></li>
+        <li><a href="#">Hoodies</a></li>
+        <li><a href="#">Accessories</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="footer-col-title">Sport</p>
+      <ul class="footer-links">
+        <li><a href="#">Running</a></li>
+        <li><a href="#">Training</a></li>
+        <li><a href="#">Basketball</a></li>
+        <li><a href="#">Football</a></li>
+        <li><a href="#">Tennis</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="footer-col-title">Help</p>
+      <ul class="footer-links">
+        <li><a href="#">Size Guide</a></li>
+        <li><a href="#">Returns</a></li>
+        <li><a href="#">Track Order</a></li>
+        <li><a href="#">Contact Us</a></li>
+        <li><a href="#">Store Finder</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p class="footer-copy">© 2024 Apex Athletic Co. All rights reserved.</p>
+    <div class="footer-socials">
+      <a href="#">Instagram</a>
+      <a href="#">Twitter</a>
+      <a href="#">YouTube</a>
+      <a href="#">TikTok</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Category pills toggle
+  document.querySelectorAll('.cat-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+    });
+  });
+
+  // Cart counter animation
+  document.querySelectorAll('.product-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const cart = document.querySelector('.nav-cart');
+      const current = parseInt(cart.textContent.match(/\d+/)[0]);
+      cart.textContent = `Cart (${current + 1})`;
+    });
+  });
+</script>
+</body>
+</html>
